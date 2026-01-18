@@ -115,10 +115,13 @@ run_server() {
     chmod +x "$valheim_server"
 
     # shellcheck disable=SC2086
-    (
-        export LD_PRELOAD="$SERVER_LD_PRELOAD"
-        export LD_LIBRARY_PATH DOORSTOP_ENABLE DOORSTOP_INVOKE_DLL_PATH DOORSTOP_CORLIB_OVERRIDE_PATH
-        exec setsid "$valheim_server" \
+    setsid env \
+        LD_PRELOAD="$SERVER_LD_PRELOAD" \
+        LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+        DOORSTOP_ENABLE="$DOORSTOP_ENABLE" \
+        DOORSTOP_INVOKE_DLL_PATH="$DOORSTOP_INVOKE_DLL_PATH" \
+        DOORSTOP_CORLIB_OVERRIDE_PATH="$DOORSTOP_CORLIB_OVERRIDE_PATH" \
+        "$valheim_server" \
             -nographics \
             -batchmode \
             -name "$SERVER_NAME" \
@@ -126,8 +129,7 @@ run_server() {
             -world "$WORLD_NAME" \
             -public "$SERVER_PUBLIC" \
             "${valheim_server_args[@]}" \
-            $SERVER_ARGS
-    ) > >(filter) 2>&1 &
+            $SERVER_ARGS > >(filter) 2>&1 &
 
     valheim_server_pid=$!
 
